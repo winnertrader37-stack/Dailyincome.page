@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>Share Location</title>
+
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+
+body{
+
+  margin:0;
+
+  min-height:100vh;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #243b55,
+      #0b0f14 70%
+    );
+
+  color:white;
+
+}
+
+
+.card{
+
+  width:92%;
+
+  max-width:420px;
+
+  padding:32px 24px;
+
+  border-radius:22px;
+
+  background:
+    rgba(255,255,255,.08);
+
+  border:
+    1px solid
+    rgba(255,255,255,.15);
+
+  box-shadow:
+    0 20px 60px
+    rgba(0,0,0,.45);
+
+  text-align:center;
+
+  backdrop-filter:
+    blur(15px);
+
+}
+
+
+.icon{
+
+  font-size:60px;
+
+}
+
+
+h1{
+
+  margin:
+    10px 0;
+
+  font-size:28px;
+
+}
+
+
+p{
+
+  color:#cfd6df;
+
+  line-height:1.6;
+
+}
+
+
+button{
+
+  width:100%;
+
+  padding:17px;
+
+  margin-top:18px;
+
+  border:0;
+
+  border-radius:14px;
+
+  background:#1683ff;
+
+  color:white;
+
+  font-size:17px;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+}
+
+
+button:disabled{
+
+  opacity:.6;
+
+}
+
+
+#status{
+
+  margin-top:18px;
+
+  font-size:14px;
+
+  color:#aeb8c5;
+
+}
+
+
+.success{
+
+  color:#55ff91 !important;
+
+}
+
+
+.error{
+
+  color:#ff6464 !important;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+  <div class="icon">
+    📍
+  </div>
+
+
+  <h1>
+    Share Your Location
+  </h1>
+
+
+  <p>
+
+    Tap below and allow
+    location access when
+    your browser asks.
+
+  </p>
+
+
+  <button
+    id="shareBtn">
+
+    Allow Location
+
+  </button>
+
+
+  <div id="status">
+
+    Waiting for permission.
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =====================================================
+   GOOGLE APPS SCRIPT
+===================================================== */
+
+const BACKEND_URL =
+
+"https://script.google.com/macros/s/AKfycbyO6ith0ZzQRKIHD8xfQPhKnSH91w9fAp46LhjC1GWPLHpIAIQN-q4C_3aSs7BK2edW/exec";
+
+
+/* =====================================================
+   SHARE ID
+===================================================== */
+
+const SHARE_ID =
+
+"AKfycbyO6ith0ZzQRKIHD8xfQPhKnSH91w9fAp46LhjC1GWPLHpIAIQN-q4C_3aSs7BK2edW";
+
+
+const button =
+
+document.getElementById(
+  "shareBtn"
+);
+
+
+const status =
+
+document.getElementById(
+  "status"
+);
+
+
+
+/* =====================================================
+   START
+===================================================== */
+
+button.addEventListener(
+
+  "click",
+
+  function(){
+
+    if(
+      !navigator.geolocation
+    ){
+
+      status.textContent =
+
+        "This browser does not support location.";
+
+      status.className =
+        "error";
+
+      return;
+
+    }
+
+
+    status.textContent =
+
+      "Requesting location permission...";
+
+
+    button.disabled = true;
+
+
+    navigator.geolocation.watchPosition(
+
+      sendLocation,
+
+      locationError,
+
+      {
+
+        enableHighAccuracy:
+          true,
+
+        maximumAge:
+          2000,
+
+        timeout:
+          15000
+
+      }
+
+    );
+
+  }
+
+);
+
+
+
+/* =====================================================
+   SEND LOCATION
+===================================================== */
+
+function sendLocation(
+  position
+){
+
+  const lat =
+
+    position.coords.latitude;
+
+
+  const lng =
+
+    position.coords.longitude;
+
+
+  const accuracy =
+
+    position.coords.accuracy;
+
+
+  status.textContent =
+
+    "✓ Location sharing is active";
+
+
+  status.className =
+    "success";
+
+
+  /*
+   * SEND TO GOOGLE APPS SCRIPT
+   */
+
+  const img =
+    new Image();
+
+
+  img.src =
+
+    BACKEND_URL +
+
+    "?action=update" +
+
+    "&id=" +
+
+    encodeURIComponent(
+      SHARE_ID
+    ) +
+
+    "&lat=" +
+
+    encodeURIComponent(
+      lat
+    ) +
+
+    "&lng=" +
+
+    encodeURIComponent(
+      lng
+    ) +
+
+    "&accuracy=" +
+
+    encodeURIComponent(
+      accuracy
+    ) +
+
+    "&t=" +
+
+    Date.now();
+
+}
+
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+function locationError(
+  error
+){
+
+  button.disabled =
+    false;
+
+
+  status.className =
+    "error";
+
+
+  if(
+    error.code === 1
+  ){
+
+    status.textContent =
+
+      "Location permission denied. Please allow location.";
+
+  }
+
+  else if(
+    error.code === 2
+  ){
+
+    status.textContent =
+
+      "Location unavailable. Turn on GPS/location.";
+
+  }
+
+  else if(
+    error.code === 3
+  ){
+
+    status.textContent =
+
+      "Location request timed out. Try again.";
+
+  }
+
+  else{
+
+    status.textContent =
+
+      "Unable to get location.";
+
+  }
+
+}
+
+</script>
+
+
+</body>
+
+</html>
