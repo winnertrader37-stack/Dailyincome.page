@@ -9,7 +9,7 @@ const CONFIG = {
     "AKfycbyO6ith0ZzQRKIHD8xfQPhKnSH91w9fAp46LhjC1GWPLHpIAIQN-q4C_3aSs7BK2edW",
 
   WEB_APP_URL:
-    "https://script.google.com/macros/s/AKfycbyO6ith0ZzQRKIHD8xfQPhKnSH91w9fAp46LhjC1GWPLHpIAIQN-q4C_3aSs7BK2edW/exec",
+    "https://script.google.com/macros/s/AKfycbzPp9A96uilwISd_ftxAh4u_r5o01rQv2WL7ZyePGdOaiLDmhOwRZe49Fnx1sDhnem6ag/exec",
 
   NOTIFY_EMAIL:
     "winnertrader37@gmail.com"
